@@ -25,8 +25,13 @@ function Spook() {
     this.content = null;
 }
 
-Spook.prototype.load = function(path) {
-    this.downloadQueue.push(path);
+Spook.prototype.load = function(name, src) {
+	var asset = {
+			name: name,
+			src: src
+		};
+
+    this.downloadQueue.push(asset);
 }
 
 Spook.prototype.loading = function(downloadCallback) {
@@ -35,7 +40,8 @@ Spook.prototype.loading = function(downloadCallback) {
 	}
 
   for (var i = 0; i < this.downloadQueue.length; i++) {
-    var path = this.downloadQueue[i];
+    var path = this.downloadQueue[i].src;
+    var name = this.downloadQueue[i].name;
     var img = new Image();
     var that = this;
     img.addEventListener("load", function() {
@@ -62,7 +68,8 @@ Spook.prototype.loading = function(downloadCallback) {
 	    	that.start();
     }, false);
     img.src = path;
-    this.cache[path] = img;
+    img.name = name;
+    this.cache[name] = img;
   }
 }
 
@@ -70,8 +77,9 @@ Spook.prototype.isDone = function() {
 	return (this.downloadQueue.length == this.successCount + this.errorCount);
 }
 
-Spook.prototype.getAsset = function(path) {
-    return this.cache[path];
+Spook.prototype.getAsset = function(name) {
+	debugger;
+	return this.cache[name];
 }
 
 Spook.prototype.progress = function() {
@@ -95,11 +103,11 @@ Spook.prototype.start = function () {
 var game = new Spook();
 
 game.preload(function () {
-	game.load('http://upload.wikimedia.org/wikipedia/commons/c/c8/USNS_Big_Horn_T-AO-198.jpg');
-	game.load('../assets/image.jpg');
-	game.load('../assets/image2.jpg');
-	game.load('http://upload.wikimedia.org/wikipedia/commons/3/3f/Fronalpstock_big.jpg');
-	game.load('http://upload.wikimedia.org/wikipedia/commons/6/6b/Big_Sur_June_2008.jpg');
+	game.load('img dfg', 'http://upload.wikimedia.org/wikipedia/commons/c/c8/USNS_Big_Horn_T-AO-198.jpg');
+	game.load('dfg', '../assets/image.jpg');
+	game.load('fhd', '../assets/image2.jpg');
+	game.load('fdg', 'http://upload.wikimedia.org/wikipedia/commons/3/3f/Fronalpstock_big.jpg');
+	game.load('gdsgfg', 'http://upload.wikimedia.org/wikipedia/commons/6/6b/Big_Sur_June_2008.jpg');
 });
 
 game.loading(function(isLoaded, counter) {
@@ -107,7 +115,7 @@ game.loading(function(isLoaded, counter) {
     	console.log('Donaloaded: ' + counter + '%');
     } else {
 	    console.log('Assets loaded! All files: ' + counter + '%');
-	    //console.log(game.getAsset('../assets/image2.jpg').src);
+	    console.log(game.getAsset('fhd'));
 	}
 });
 
