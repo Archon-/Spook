@@ -4,9 +4,6 @@
  *	@license MIT
  *	@version 0.0.1
  */
-var Spook = function(CanvasWidth, CanvasHeight, CanvasId){
-	return true;
-}
 
 window.requestAnimFrame = (function(){
       return  window.requestAnimationFrame       ||
@@ -19,21 +16,22 @@ window.requestAnimFrame = (function(){
               };
 })();
 
-function AssetManager() {
+function Spook() {
     this.successCount = 0;
     this.errorCount = 0;
     this.cache = {};
     this.downloadQueue = [];
     this.soundsQueue = [];
+    this.content = null;
 }
 
-AssetManager.prototype.queueDownload = function(path) {
+Spook.prototype.load = function(path) {
     this.downloadQueue.push(path);
 }
 
-AssetManager.prototype.downloadAll = function(downloadCallback) {
+Spook.prototype.loading = function(downloadCallback) {
 	if (this.downloadQueue.length === 0) {
-    	downloadCallback(true, 0);
+    	downloadCallback(true, 100);
 	}
 
   for (var i = 0; i < this.downloadQueue.length; i++) {
@@ -47,51 +45,73 @@ AssetManager.prototype.downloadAll = function(downloadCallback) {
 	    } else {
 	    	downloadCallback(false, that.progress());
 	    }
+	    if(that.progress() === 100)
+	    	that.start();
     }, false);
     img.addEventListener("error", function() {
-    	console.log('Can\'t load'	);
+    	console.log('Can\'t load asset');
         that.errorCount += 1;
+
 	    if (that.isDone()) {
 	        downloadCallback(true, that.progress());
 	    } else {
 	    	downloadCallback(false, that.progress());
 	    }
+
+	    if(that.progress() === 100)
+	    	that.start();
     }, false);
     img.src = path;
     this.cache[path] = img;
   }
 }
 
-AssetManager.prototype.isDone = function() {
-    return (this.downloadQueue.length == this.successCount + this.errorCount);
+Spook.prototype.isDone = function() {
+	return (this.downloadQueue.length == this.successCount + this.errorCount);
 }
 
-AssetManager.prototype.getAsset = function(path) {
+Spook.prototype.getAsset = function(path) {
     return this.cache[path];
 }
 
-AssetManager.prototype.progress = function() {
-	return (this.successCount + this.errorCount) / this.downloadQueue.length;
+Spook.prototype.progress = function() {
+	return (Math.round(((this.successCount + this.errorCount) / this.downloadQueue.length) * 100) / 100) * 100;
 }
 
-var ASSET_MANAGER = new AssetManager();
+Spook.prototype.preload = function (fn) {
+	fn();
+}
 
-ASSET_MANAGER.queueDownload('http://upload.wikimedia.org/wikipedia/commons/c/c8/USNS_Big_Horn_T-AO-198.jpg');
-ASSET_MANAGER.queueDownload('../assets/image.jpg');
-ASSET_MANAGER.queueDownload('../assets/image2.jpg');
-ASSET_MANAGER.queueDownload('http://upload.wikimedia.org/wikipedia/commons/3/3f/Fronalpstock_big.jpg');
-ASSET_MANAGER.queueDownload('http://upload.wikimedia.org/wikipedia/commons/6/6b/Big_Sur_June_2008.jpg');
+Spook.prototype.ready = function (fn) {
+	this.content = fn;
+}
 
-ASSET_MANAGER.downloadAll(function(isLoaded, counter) {
-    // game.init(ctx);
-    // game.start();
+Spook.prototype.start = function () {
+	if (this.content !== null) {
+		this.content();
+	}
+}
+
+var game = new Spook();
+
+game.preload(function () {
+	game.load('http://upload.wikimedia.org/wikipedia/commons/c/c8/USNS_Big_Horn_T-AO-198.jpg');
+	game.load('../assets/image.jpg');
+	game.load('../assets/image2.jpg');
+	game.load('http://upload.wikimedia.org/wikipedia/commons/3/3f/Fronalpstock_big.jpg');
+	game.load('http://upload.wikimedia.org/wikipedia/commons/6/6b/Big_Sur_June_2008.jpg');
+});
+
+game.loading(function(isLoaded, counter) {
     if (isLoaded === false) {
-    	console.log('Donaloaded: ' + counter);
+    	console.log('Donaloaded: ' + counter + '%');
     } else {
-    	console.clear();
-	    console.log('Assets loaded! All files: ' + counter);
-	    console.log(ASSET_MANAGER.getAsset('../assets/image2.jpg').src);
+	    console.log('Assets loaded! All files: ' + counter + '%');
+	    //console.log(game.getAsset('../assets/image2.jpg').src);
 	}
 });
 
-//window['spook'] = spook;
+game.ready(function () {
+	console.log('Now its ready!');
+	console.log('Gaaaame!');
+});
