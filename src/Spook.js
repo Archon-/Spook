@@ -81,9 +81,6 @@ ASSET_MANAGER.queueDownload('../assets/image.jpg');
 ASSET_MANAGER.queueDownload('../assets/image2.jpg');
 ASSET_MANAGER.queueDownload('http://upload.wikimedia.org/wikipedia/commons/3/3f/Fronalpstock_big.jpg');
 ASSET_MANAGER.queueDownload('http://upload.wikimedia.org/wikipedia/commons/6/6b/Big_Sur_June_2008.jpg');
-// ASSET_MANAGER.queueSound('alien-boom', 'audio/alien_boom.mp3');
-// ASSET_MANAGER.queueSound('bullet-boom', 'audio/bullet_boom.mp3');
-// ASSET_MANAGER.queueSound('bullet', 'audio/bullet.mp3');
 
 ASSET_MANAGER.downloadAll(function(isLoaded, counter) {
     // game.init(ctx);
