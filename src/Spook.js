@@ -69,6 +69,7 @@ Spook.prototype.loading = function(downloadCallback) {
     }, false);
     img.src = path;
     img.name = name;
+    img.test = 'Just test';
     this.cache[name] = img;
   }
 }
@@ -78,7 +79,6 @@ Spook.prototype.isDone = function() {
 }
 
 Spook.prototype.getAsset = function(name) {
-	debugger;
 	return this.cache[name];
 }
 
@@ -105,7 +105,7 @@ var game = new Spook();
 game.preload(function () {
 	game.load('img dfg', 'http://upload.wikimedia.org/wikipedia/commons/c/c8/USNS_Big_Horn_T-AO-198.jpg');
 	game.load('dfg', '../assets/image.jpg');
-	game.load('fhd', '../assets/image2.jpg');
+	game.load('img2', '../assets/image2.jpg');
 	game.load('fdg', 'http://upload.wikimedia.org/wikipedia/commons/3/3f/Fronalpstock_big.jpg');
 	game.load('gdsgfg', 'http://upload.wikimedia.org/wikipedia/commons/6/6b/Big_Sur_June_2008.jpg');
 });
