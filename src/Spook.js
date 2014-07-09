@@ -16,7 +16,7 @@ window.requestAnimFrame = (function(){
               };
 })();
 
-function Spook() {
+function Spook(Canvas, Width, Height, Options) {
     this.successCount = 0;
     this.errorCount = 0;
     this.cache = {};
@@ -99,27 +99,3 @@ Spook.prototype.start = function () {
 		this.content();
 	}
 }
-
-var game = new Spook();
-
-game.preload(function () {
-	game.load('img dfg', 'http://upload.wikimedia.org/wikipedia/commons/c/c8/USNS_Big_Horn_T-AO-198.jpg');
-	game.load('dfg', '../assets/image.jpg');
-	game.load('img2', '../assets/image2.jpg');
-	game.load('fdg', 'http://upload.wikimedia.org/wikipedia/commons/3/3f/Fronalpstock_big.jpg');
-	game.load('gdsgfg', 'http://upload.wikimedia.org/wikipedia/commons/6/6b/Big_Sur_June_2008.jpg');
-});
-
-game.loading(function(isLoaded, counter) {
-    if (isLoaded === false) {
-    	console.log('Donaloaded: ' + counter + '%');
-    } else {
-	    console.log('Assets loaded! All files: ' + counter + '%');
-	    console.log(game.getAsset('fhd'));
-	}
-});
-
-game.ready(function () {
-	console.log('Now its ready!');
-	console.log('Gaaaame!');
-});
