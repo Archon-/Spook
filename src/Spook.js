@@ -5,6 +5,9 @@
  *	@version 0.0.1
  */
 
+/**
+ * Polyfills
+ */
 window.requestAnimFrame = (function(){
       return  window.requestAnimationFrame       ||
               window.webkitRequestAnimationFrame ||
@@ -16,6 +19,9 @@ window.requestAnimFrame = (function(){
               };
 })();
 
+/**
+ * Core
+ */
 function Spook(Canvas, Width, Height, Options) {
     this.successCount = 0;
     this.errorCount = 0;
@@ -25,6 +31,9 @@ function Spook(Canvas, Width, Height, Options) {
     this.content = null;
 }
 
+/**
+ * Asset Manager
+ */
 Spook.prototype.load = function(name, src) {
 	var asset = {
 			name: name,
@@ -32,6 +41,7 @@ Spook.prototype.load = function(name, src) {
 		};
 
     this.downloadQueue.push(asset);
+    return this;
 }
 
 Spook.prototype.loading = function(downloadCallback) {
@@ -99,3 +109,12 @@ Spook.prototype.start = function () {
 		this.content();
 	}
 }
+
+/**
+ * Sprite Manager
+ */
+ Spook.prototype.sprite = function(width, height, name) {
+ 	this.width = width;
+ 	this.height = height;
+ 	this.name = name.name;
+ }

@@ -6,13 +6,15 @@
 	<script src="../src/spook.js"></script>
 	<script>
 		var game = new Spook();
+		var img2;
 
 		game.preload(function () {
 			game.load('img dfg', 'http://upload.wikimedia.org/wikipedia/commons/c/c8/USNS_Big_Horn_T-AO-198.jpg');
 			game.load('dfg', '../assets/image.jpg');
-			game.load('img2', '../assets/image2.jpg');
-			game.load('fdg', 'http://upload.wikimedia.org/wikipedia/commons/3/3f/Fronalpstock_big.jpg');
+			img2 = game.load('img2', '../assets/image2.jpg');
+			//game.load('fdg', 'http://upload.wikimedia.org/wikipedia/commons/3/3f/Fronalpstock_big.jpg');
 			game.load('gdsgfg', 'http://upload.wikimedia.org/wikipedia/commons/6/6b/Big_Sur_June_2008.jpg');
+
 		});
 
 		game.loading(function(isLoaded, counter) {
@@ -20,14 +22,17 @@
 		    	console.log('Donaloaded: ' + counter + '%');
 		    } else {
 			    console.log('Assets loaded! All files: ' + counter + '%');
-			    console.log(game.getAsset('fhd'));
+			    console.log(game.getAsset('f	hd'));
 			}
 		});
 
 		game.ready(function () {
 			console.log('Now its ready!');
 			console.log('Gaaaame!');
+			var sprt = game.sprite(100, 200, game.getAsset('img2'));
+			console.log(img2);
 		});
+
 	</script>
 </head>
 <body>
