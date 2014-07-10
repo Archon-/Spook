@@ -9,7 +9,7 @@
 		var img2;
 
 		game.preload(function () {
-			game.load('img dfg', 'http://upload.wikimedia.org/wikipedia/commons/c/c8/USNS_Big_Horn_T-AO-198.jpg');
+			game.load('img', 'http://upload.wikimedia.org/wikipedia/commons/c/c8/USNS_Big_Horn_T-AO-198.jpg');
 			game.load('dfg', '../assets/image.jpg');
 			img2 = game.load('img2', '../assets/image2.jpg');
 			//game.load('fdg', 'http://upload.wikimedia.org/wikipedia/commons/3/3f/Fronalpstock_big.jpg');
@@ -29,8 +29,9 @@
 		game.ready(function () {
 			console.log('Now its ready!');
 			console.log('Gaaaame!');
-			var sprt = game.sprite(100, 200, game.getAsset('img2'));
-			console.log(img2);
+			var sprt = new game.sprite(100, 200, game.getAsset('img'));
+			var sprt2 = new game.sprite(10, 18, game.getAsset('img2'));
+			console.log(sprt2);
 		});
 
 	</script>
