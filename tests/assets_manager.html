@@ -34,6 +34,30 @@
 			console.log(sprt2);
 		});
 
+		game.willUpdate(function () {
+			console.log('willUpdate');
+		});
+
+		game.update(function () {
+			console.log('update');
+		});
+
+		game.didUpdate(function () {
+			console.log('didUpdate');
+		});
+
+		// game.willDraw(function () {
+		// 	console.log('willDraw');
+		// });
+
+		game.draw(function () {
+			console.log('draw');
+		});
+
+		game.didDraw(function () {
+			console.log('didDraw');
+		});
+
 	</script>
 </head>
 <body>

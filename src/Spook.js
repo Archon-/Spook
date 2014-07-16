@@ -29,6 +29,14 @@ function Spook(Canvas, Width, Height, Options) {
     this.downloadQueue = [];
     this.soundsQueue = [];
     this.content = null;
+
+    this._cycles = [];
+	this._willUpdateContent;
+	this._updateContent;
+	this._didUpdateContent;
+	this._willDrawContent;
+	this._drawContent;
+	this._didDrawContent;
 }
 
 /**
@@ -107,7 +115,83 @@ Spook.prototype.ready = function (fn) {
 Spook.prototype.start = function () {
 	if (this.content !== null) {
 		this.content();
+
+		// Create empty cycle step if not created by user
+		if (!this._willUpdateContent) { 
+			this.willUpdate(function () {});
+		}
+
+		if (!this._updateContent) {
+			this.update(function () {});
+		}
+
+		if (!this._didUpdateContent) {
+			this.didUpdate(function () {});
+		}
+
+		if (!this._willDrawContent) {
+			this.willDraw(function () {});
+		}
+
+		if (!this._drawContent) {
+			this.draw(function () {});
+		}
+
+		if (!this._didDrawContent) {
+			this.didDraw(function () {});
+		}
+
+		this._addToQueue();
+		this.cycleQueue(true);
 	}
+}
+
+/**
+ * Game cycles
+ */
+Spook.prototype.cycleQueue = function (next) {
+	debugger;
+    if(this._cycles.length == 0) return;
+    var fnc = this._cycles.pop();
+    fnc();
+    if(next) {
+        this.cycleQueue(true);
+    }
+}
+
+Spook.prototype.willUpdate = function (fn) {
+	this._willUpdateContent = fn;
+}
+
+Spook.prototype.update = function (fn) {
+	this._updateContent = fn;
+}
+
+Spook.prototype.didUpdate = function (fn) {
+	this._didUpdateContent = fn;
+}
+
+Spook.prototype.willDraw = function (fn) {
+	this._willDrawContent = fn;
+}
+
+Spook.prototype.draw = function (fn) {
+	this._drawContent = fn;
+}
+
+Spook.prototype.didDraw = function (fn) {
+	this._didDrawContent = fn;
+}
+
+Spook.prototype._addToQueue = function () {
+	this._cycles.push(this._didDrawContent);
+	this._cycles.push(this._drawContent);
+	this._cycles.push(this._willDrawContent);
+	this._cycles.push(this._didUpdateContent);
+	this._cycles.push(this._updateContent);
+	this._cycles.push(this._willUpdateContent);
+
+	this.cycleQueue(true);
 }
 
 /**
