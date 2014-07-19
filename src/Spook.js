@@ -22,7 +22,9 @@ window.requestAnimFrame = (function(){
 /**
  * Core
  */
-function Spook(Canvas, Width, Height, Options) {
+function Spook(Id, Width, Height, Options) {
+	var _canvas;
+
     this.successCount = 0;
     this.errorCount = 0;
     this.cache = {};
@@ -37,6 +39,60 @@ function Spook(Canvas, Width, Height, Options) {
 	this._willDrawContent;
 	this._drawContent;
 	this._didDrawContent;
+	this.canvas = {};
+
+	this.i = 0;
+
+	this.running = false; // Is game running at this moment?
+
+	this.canvas.id = Id;
+
+	this.canvas.width = (typeof Width === 'undefined') ? 800 : Width;
+	this.canvas.height = (typeof Height === 'undefined') ? 600 : Height;
+
+	if (document.getElementById(Id) === null) {
+		_canvas = document.createElement('canvas');
+		_canvas.id = Id;
+
+		_canvas.width = this.canvas.width;
+		_canvas.height = this.canvas.height;
+
+	    this.context = _canvas.getContext('2d');
+
+	    document.body.appendChild(_canvas);
+
+		console.log('canvas' + Id);
+	} else {
+		_canvas = document.getElementById(Id);
+		_canvas.width = this.canvas.width;
+		_canvas.height = this.canvas.height;
+
+		this.context = _canvas.getContext('2d');
+	}
+
+	console.log(this.context);
+}
+
+Spook.prototype.tests = function () {
+	console.log('test');
+}
+
+Spook.prototype.gameLoop = function () {
+	var that = this;
+
+	//console.log('rAF ' + that.context);
+	//that.render();
+
+	//window.requestAnimationFrame( function() { that.gameLoop(); } );
+}
+
+Spook.prototype.render = function () {
+	this.context.fillStyle = "rgb(255,0,0)";
+	this.context.fillRect(this.i, this.i, 50, 50);
+
+	this.i++;
+
+	console.log('cnvs');
 }
 
 /**
@@ -101,6 +157,10 @@ Spook.prototype.getAsset = function(name) {
 }
 
 Spook.prototype.progress = function() {
+	if (this.downloadQueue.length === 0) {
+		return 100;
+	}
+
 	return (Math.round(((this.successCount + this.errorCount) / this.downloadQueue.length) * 100) / 100) * 100;
 }
 
@@ -110,11 +170,19 @@ Spook.prototype.preload = function (fn) {
 
 Spook.prototype.ready = function (fn) {
 	this.content = fn;
+	console.log('loading progress: ' + this.progress());
+
+	this.gameLoop();
+	// if (this.progress() === 100) {
+	// 	this.start();
+	// }
 }
 
 Spook.prototype.start = function () {
 	if (this.content !== null) {
 		this.content();
+
+		this.tests();
 
 		// Create empty cycle step if not created by user
 		if (!this._willUpdateContent) { 
@@ -150,13 +218,17 @@ Spook.prototype.start = function () {
  * Game cycles
  */
 Spook.prototype.cycleQueue = function (next) {
-	debugger;
     if(this._cycles.length == 0) return;
     var fnc = this._cycles.pop();
     fnc();
     if(next) {
         this.cycleQueue(true);
     }
+}
+
+Spook.prototype.clear = function () {
+	this.context.fillStyle = "rgb(255,255,255)";
+	this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
 }
 
 Spook.prototype.willUpdate = function (fn) {
@@ -176,6 +248,7 @@ Spook.prototype.willDraw = function (fn) {
 }
 
 Spook.prototype.draw = function (fn) {
+	//this.clear();
 	this._drawContent = fn;
 }
 

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Cycles Tests - test</title>
+</head>
+<body>
+	<script src="../src/spook.js"></script>
+	<script>
+		var game = new Spook('game', 800, 480);
+		var img2;
+
+		game.preload(function () {
+			game.load('img', 'http://upload.wikimedia.org/wikipedia/commons/c/c8/USNS_Big_Horn_T-AO-198.jpg');
+			game.load('dfg', '../assets/image.jpg');
+			img2 = game.load('img2', '../assets/image2.jpg');
+			game.load('fdg', 'http://upload.wikimedia.org/wikipedia/commons/3/3f/Fronalpstock_big.jpg');
+			game.load('gdsgfg', 'http://upload.wikimedia.org/wikipedia/commons/6/6b/Big_Sur_June_2008.jpg');
+
+		});
+
+		game.loading(function(isLoaded, counter) {
+		    // if (isLoaded === false) {
+		    	console.log('Donaloaded: ' + counter + '%');
+		    	var ctx = game.context;
+
+		    	ctx.fillStyle = "rgb(255,255,255)";
+				ctx.fillRect(0, 0, 800, 480);
+
+				ctx.fillStyle = '#f00';
+				ctx.font = 'italic bold 30px sans-serif';
+				ctx.textBaseline = 'bottom';
+				ctx.fillText('Downloaded ' + counter + '%!', 50, 100);
+		 //    } else {
+			//     console.log('Assets loaded! All files: ' + counter + '%');
+			//     //console.log(game.getAsset('f	hd'));
+			// }
+		});
+
+		game.ready(function () {
+			console.log('Now its ready!');
+			console.log('Gaaaame!');
+			//var sprt = new game.sprite(100, 200, game.getAsset('img'));
+			//var sprt2 = new game.sprite(10, 18, game.getAsset('img2'));
+			//console.log(sprt2);
+		});
+
+		game.willUpdate(function () {
+			// game.load('img', 'http://upload.wikimedia.org/wikipedia/commons/c/c8/USNS_Big_Horn_T-AO-198.jpg');
+			// game.load('dfg', '../assets/image.jpg');
+			// img2 = game.load('img2', '../assets/image2.jpg');
+			// game.load('fdg', 'http://upload.wikimedia.org/wikipedia/commons/3/3f/Fronalpstock_big.jpg');
+			// game.load('gdsgfg', 'http://upload.wikimedia.org/wikipedia/commons/6/6b/Big_Sur_June_2008.jpg');
+			console.log('willUpdate');
+		});
+
+		game.update(function () {
+			console.log('update');
+		});
+
+		game.didUpdate(function () {
+			console.log('didUpdate');
+		});
+
+		// game.willDraw(function () {
+		// 	console.log('willDraw');
+		// });
+
+		game.draw(function () {
+			console.log('draw');
+			game.context.fillStyle = "rgb(255,255,255)";
+			game.context.fillRect(0, 0, 800, 480);
+		});
+
+		game.didDraw(function () {
+			console.log('didDraw');
+		});
+
+	</script>
+</body>
+</html>
