@@ -23,7 +23,8 @@ window.requestAnimFrame = (function(){
  * Core
  */
 function Spook(Id, Width, Height, Options) {
-	var _canvas;
+	var _canvas,
+		startTime = new Date().getTime();
 
     this.successCount = 0;
     this.errorCount = 0;
@@ -39,6 +40,7 @@ function Spook(Id, Width, Height, Options) {
 	this._willDrawContent;
 	this._drawContent;
 	this._didDrawContent;
+	this._requestId; // rAF id
 	this.canvas = {};
 
 	this.i = 0;
@@ -70,20 +72,24 @@ function Spook(Id, Width, Height, Options) {
 		this.context = _canvas.getContext('2d');
 	}
 
-	console.log(this.context);
-}
+	this._FPS = {
+		value: 0,
+		lastTime: 0,
+		lastTimeCounterUpdate: 0,
+		history: []
+	}
 
-Spook.prototype.tests = function () {
-	console.log('test');
+    this._FPS.lastTime = startTime;
+    this._FPS.lastTimeCounterUpdate = startTime;
 }
 
 Spook.prototype.gameLoop = function () {
 	var that = this;
 
-	//console.log('rAF ' + that.context);
-	//that.render();
-
-	//window.requestAnimationFrame( function() { that.gameLoop(); } );
+	this.FPSCounterUpdate();
+	this.preCycles();
+	this._FPSRender();
+	this._requestId = window.requestAnimationFrame( function() { that.gameLoop(); } );
 }
 
 Spook.prototype.render = function () {
@@ -91,8 +97,42 @@ Spook.prototype.render = function () {
 	this.context.fillRect(this.i, this.i, 50, 50);
 
 	this.i++;
+}
 
-	console.log('cnvs');
+Spook.prototype.stop = function () {
+	if (this._requestId) {
+       window.cancelAnimationFrame(this._requestId);
+       this._requestId = undefined;
+    }
+}
+
+Spook.prototype.play = function () {
+	if (typeof this._requestId === 'undefined') {
+		this.gameLoop();
+	}
+}
+
+Spook.prototype.pause = function () {
+	if (typeof this._requestId === 'undefined') {
+		this.play();
+	} else {
+		this.stop();
+	}
+}
+
+Spook.prototype.FPSCounterUpdate = function(){
+	var now = new Date().getTime();
+
+	this._FPS.history.push(~~(1000/(now - this._FPS.lastTime)));
+	this._FPS.lastTime = now;
+
+	if(this._FPS.history.length === 51){
+		this._FPS.history.shift();
+		if(now - this._FPS.lastTimeCounterUpdate >= 1000){
+			this._FPS.value = ~~(this._FPS.history.reduce(function(pv, cv) { return pv + cv; }, 0)/50);
+			this._FPS.lastTimeCounterUpdate = now;
+		}
+	}
 }
 
 /**
@@ -171,47 +211,43 @@ Spook.prototype.preload = function (fn) {
 Spook.prototype.ready = function (fn) {
 	this.content = fn;
 	console.log('loading progress: ' + this.progress());
-
-	this.gameLoop();
-	// if (this.progress() === 100) {
-	// 	this.start();
-	// }
 }
 
 Spook.prototype.start = function () {
 	if (this.content !== null) {
 		this.content();
-
-		this.tests();
-
-		// Create empty cycle step if not created by user
-		if (!this._willUpdateContent) { 
-			this.willUpdate(function () {});
-		}
-
-		if (!this._updateContent) {
-			this.update(function () {});
-		}
-
-		if (!this._didUpdateContent) {
-			this.didUpdate(function () {});
-		}
-
-		if (!this._willDrawContent) {
-			this.willDraw(function () {});
-		}
-
-		if (!this._drawContent) {
-			this.draw(function () {});
-		}
-
-		if (!this._didDrawContent) {
-			this.didDraw(function () {});
-		}
-
-		this._addToQueue();
-		this.cycleQueue(true);
+		this.gameLoop();
 	}
+}
+
+Spook.prototype.preCycles = function () {  // shoud be private
+	// Create empty cycle step if not created by user
+	if (!this._willUpdateContent) { 
+		this.willUpdate(function () {});
+	}
+
+	if (!this._updateContent) {
+		this.update(function () {});
+	}
+
+	if (!this._didUpdateContent) {
+		this.didUpdate(function () {});
+	}
+
+	if (!this._willDrawContent) {
+		this.willDraw(function () {});
+	}
+
+	if (!this._drawContent) {
+		this.draw(function () {});
+	}
+
+	if (!this._didDrawContent) {
+		this.didDraw(function () {});
+	}
+
+	this._addToQueue();
+	this.cycleQueue(true);
 }
 
 /**
@@ -248,7 +284,6 @@ Spook.prototype.willDraw = function (fn) {
 }
 
 Spook.prototype.draw = function (fn) {
-	//this.clear();
 	this._drawContent = fn;
 }
 
@@ -263,8 +298,13 @@ Spook.prototype._addToQueue = function () {
 	this._cycles.push(this._didUpdateContent);
 	this._cycles.push(this._updateContent);
 	this._cycles.push(this._willUpdateContent);
+}
 
-	this.cycleQueue(true);
+Spook.prototype._FPSRender = function () {
+	this.context.fillStyle = '#000';
+	this.context.font = 'bold 14px sans-serif';
+	this.context.textBaseline = 'bottom';
+	this.context.fillText('FPS: ' + this._FPS.value + '!', 10, 24);
 }
 
 /**
