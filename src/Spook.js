@@ -23,15 +23,26 @@ window.requestAnimFrame = (function(){
  * Core
  */
 function Spook(Id, Width, Height, Options) {
-	var _canvas,
-		startTime = new Date().getTime();
 
+	/*
+	 * Private atributes
+	 */
+	var _canvas;
+
+	this._lastTickTime = 0;
+	this._frameCounter = 0;
+	this._fps = 0;
+
+	/*
+	 * Public atributes
+	 */
     this.successCount = 0;
     this.errorCount = 0;
     this.cache = {};
     this.downloadQueue = [];
     this.soundsQueue = [];
     this.content = null;
+    this.FPS = false;
 
     this._cycles = [];
 	this._willUpdateContent;
@@ -48,6 +59,10 @@ function Spook(Id, Width, Height, Options) {
 	this.running = false; // Is game running at this moment?
 
 	this.canvas.id = Id;
+
+	/*
+	 * Constructor
+	 */
 
 	this.canvas.width = (typeof Width === 'undefined') ? 800 : Width;
 	this.canvas.height = (typeof Height === 'undefined') ? 600 : Height;
@@ -71,25 +86,18 @@ function Spook(Id, Width, Height, Options) {
 
 		this.context = _canvas.getContext('2d');
 	}
-
-	this._FPS = {
-		value: 0,
-		lastTime: 0,
-		lastTimeCounterUpdate: 0,
-		history: []
-	}
-
-    this._FPS.lastTime = startTime;
-    this._FPS.lastTimeCounterUpdate = startTime;
 }
 
 Spook.prototype.gameLoop = function () {
 	var that = this;
 
-	this.FPSCounterUpdate();
-	this.preCycles();
-	this._FPSRender();
-	this._requestId = window.requestAnimationFrame( function() { that.gameLoop(); } );
+	if (this.running) {
+		this.FPSCounterUpdate();
+
+		this.preCycles();
+		this._FPSRender();
+		this._requestId = window.requestAnimationFrame( function() { that.gameLoop(); } );
+	}
 }
 
 Spook.prototype.render = function () {
@@ -103,17 +111,20 @@ Spook.prototype.stop = function () {
 	if (this._requestId) {
        window.cancelAnimationFrame(this._requestId);
        this._requestId = undefined;
+       this.running = false;
     }
 }
 
 Spook.prototype.play = function () {
 	if (typeof this._requestId === 'undefined') {
+		this.running = true;
+		this._lastTickTime = new Date();
 		this.gameLoop();
 	}
 }
 
 Spook.prototype.pause = function () {
-	if (typeof this._requestId === 'undefined') {
+	if (typeof this._requestId === 'undefined' && !this.running) {
 		this.play();
 	} else {
 		this.stop();
@@ -121,18 +132,16 @@ Spook.prototype.pause = function () {
 }
 
 Spook.prototype.FPSCounterUpdate = function(){
-	var now = new Date().getTime();
+    var currentTime = +(new Date()),
+        diffTime = ~~((currentTime - this._lastTickTime));
 
-	this._FPS.history.push(~~(1000/(now - this._FPS.lastTime)));
-	this._FPS.lastTime = now;
+    if (diffTime >= 1000) {
+        this._fps = this._frameCounter;
+        this._frameCounter = 0;
+        this._lastTickTime = currentTime;
+    }
 
-	if(this._FPS.history.length === 51){
-		this._FPS.history.shift();
-		if(now - this._FPS.lastTimeCounterUpdate >= 1000){
-			this._FPS.value = ~~(this._FPS.history.reduce(function(pv, cv) { return pv + cv; }, 0)/50);
-			this._FPS.lastTimeCounterUpdate = now;
-		}
-	}
+    this._frameCounter++;
 }
 
 /**
@@ -151,6 +160,7 @@ Spook.prototype.load = function(name, src) {
 Spook.prototype.loading = function(downloadCallback) {
 	if (this.downloadQueue.length === 0) {
     	downloadCallback(true, 100);
+        this.start();
 	}
 
   for (var i = 0; i < this.downloadQueue.length; i++) {
@@ -216,6 +226,7 @@ Spook.prototype.ready = function (fn) {
 Spook.prototype.start = function () {
 	if (this.content !== null) {
 		this.content();
+		this._lastTickTime = new Date();
 		this.gameLoop();
 	}
 }
@@ -304,14 +315,19 @@ Spook.prototype._FPSRender = function () {
 	this.context.fillStyle = '#000';
 	this.context.font = 'bold 14px sans-serif';
 	this.context.textBaseline = 'bottom';
-	this.context.fillText('FPS: ' + this._FPS.value + '!', 10, 24);
+	this.context.fillText('FPS: ' + this._fps + '!', 10, 24);
 }
 
 /**
  * Sprite Manager
  */
- Spook.prototype.sprite = function(width, height, name) {
- 	this.width = width;
- 	this.height = height;
- 	this.name = name.name;
- }
+Spook.prototype.sprite = function (obj) {
+	this.width = obj.width;
+	this.height = obj.height;
+	this.name = obj.name;
+	this.image = obj.image;
+}
+
+Spook.prototype.sprite.prototype.animate = function () {
+	console.log('Animate!!!!!! ' + this.image.width + ', h: ' + this.image.height);
+}
