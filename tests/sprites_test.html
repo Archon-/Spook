@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Cycles Tests - test</title>
+</head>
+<body>
+	<button id="start" onclick="javascript:game.play();">Start</button>
+	<button id="stop" onclick="javascript:game.stop();">Stop</button>
+	<button id="pause" onclick="javascript:game.pause();">Pause</button>
+	<script src="../src/spook.js"></script>
+	<script>
+		var game = new Spook('game', 800, 480);
+		var img2;
+		var i = 0;
+
+		game.preload(function () {
+			game.load('img', 'http://upload.wikimedia.org/wikipedia/commons/c/c8/USNS_Big_Horn_T-AO-198.jpg');
+			game.load('dfg', '../assets/image.jpg');
+			img2 = game.load('img2', '../assets/image2.jpg');
+			// game.load('fdg', 'http://upload.wikimedia.org/wikipedia/commons/3/3f/Fronalpstock_big.jpg');
+			// game.load('gdsgfg', 'http://upload.wikimedia.org/wikipedia/commons/6/6b/Big_Sur_June_2008.jpg');
+			game.load('person', '../assets/walk-cycle.png');
+		});
+
+		game.loading(function(isLoaded, counter) {
+	    	console.log('Donaloaded: ' + counter + '%');
+	    	var ctx = game.context;
+
+	    	ctx.fillStyle = "rgb(255,255,255)";
+			ctx.fillRect(0, 0, 800, 480);
+
+			ctx.fillStyle = '#f00';
+			ctx.font = 'italic bold 30px sans-serif';
+			ctx.textBaseline = 'bottom';
+			ctx.fillText('Downloaded ' + counter + '%!', 50, 100);
+
+		});
+
+		game.ready(function () {
+			console.log('Now its ready!');
+			console.log('Gaaaame!');
+
+			console.log('creating sprite');
+			var spr = new game.sprite({
+				name: 'Spritic',
+				width: 48,
+				height: 92,
+				image: game.getAsset('person')
+			});
+
+			//spr.animate();
+			console.log('Sprite\'s name is: ' + spr.name + 'w: ' + spr.width + ', h: ' + spr.height);
+			console.log(spr.image);
+			spr.animate();
+			game.play();
+		});
+
+		game.willUpdate(function () {
+			//console.log('willUpdate');
+		});
+
+		game.update(function () {
+			//console.log('update');
+			//i++;
+		});
+
+		game.didUpdate(function () {
+			//console.log('didUpdate');
+		});
+
+		game.willDraw(function () {
+			//console.log('willDraw');
+		});
+
+		game.draw(function () {
+			game.clear();
+			//console.log('draw');
+			// game.context.fillStyle = "rgb(148,5,205)";
+			// game.context.fillRect(i, i, 50, 50);
+		});
+
+		game.didDraw(function () {
+			//console.log('didDraw');
+		});
+
+	</script>
+</body>
+</html>
