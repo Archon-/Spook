@@ -20,9 +20,40 @@ window.requestAnimFrame = (function(){
 })();
 
 /**
+ * Namespace with constants
+ */
+var Spook = Spook || {
+
+	VERSION: '0.0.1'
+};
+
+/**
+ * Module system
+ */
+Spook.module = {
+	
+	/**
+	 * @method Spook.module.add - adding new module
+	 * @param {String} module - name of function with module
+	 */
+	add: function (module) {
+		//TODO: Before add check is module exist
+		Spook.Game.prototype[module] = Spook[module];
+	},
+
+	/**
+	 * @method Spool.module.list - list all loaded modules
+	 * @param {String} sort - mothod of sorting list
+	 */
+	list: function () {
+
+	}
+};
+
+/**
  * Core
  */
-function Spook(Id, Width, Height, Options) {
+Spook.Game = function (arg) {
 
 	/*
 	 * Private atributes
@@ -58,18 +89,18 @@ function Spook(Id, Width, Height, Options) {
 
 	this.running = false; // Is game running at this moment?
 
-	this.canvas.id = Id;
+	this.canvas.id = arg.id;
 
 	/*
 	 * Constructor
 	 */
 
-	this.canvas.width = (typeof Width === 'undefined') ? 800 : Width;
-	this.canvas.height = (typeof Height === 'undefined') ? 600 : Height;
+	this.canvas.width = (typeof arg.width === 'undefined') ? 800 : arg.width;
+	this.canvas.height = (typeof arg.height === 'undefined') ? 600 : arg.height;
 
-	if (document.getElementById(Id) === null) {
+	if (document.getElementById(arg.id) === null) {
 		_canvas = document.createElement('canvas');
-		_canvas.id = Id;
+		_canvas.id = arg.id;
 
 		_canvas.width = this.canvas.width;
 		_canvas.height = this.canvas.height;
@@ -78,256 +109,265 @@ function Spook(Id, Width, Height, Options) {
 
 	    document.body.appendChild(_canvas);
 
-		console.log('canvas' + Id);
+		console.log('canvas' + arg.id);
 	} else {
-		_canvas = document.getElementById(Id);
+		_canvas = document.getElementById(arg.id);
 		_canvas.width = this.canvas.width;
 		_canvas.height = this.canvas.height;
 
 		this.context = _canvas.getContext('2d');
 	}
-}
 
-Spook.prototype.gameLoop = function () {
-	var that = this;
+	// ------
 
-	if (this.running) {
-		this.FPSCounterUpdate();
+	this.gameLoop = function () {
+		var that = this;
 
-		this.preCycles();
-		this._FPSRender();
-		this._requestId = window.requestAnimationFrame( function() { that.gameLoop(); } );
-	}
-}
+		if (this.running) {
+			this.FPSCounterUpdate();
 
-Spook.prototype.render = function () {
-	this.context.fillStyle = "rgb(255,0,0)";
-	this.context.fillRect(this.i, this.i, 50, 50);
-
-	this.i++;
-}
-
-Spook.prototype.stop = function () {
-	if (this._requestId) {
-       window.cancelAnimationFrame(this._requestId);
-       this._requestId = undefined;
-       this.running = false;
-    }
-}
-
-Spook.prototype.play = function () {
-	if (typeof this._requestId === 'undefined') {
-		this.running = true;
-		this._lastTickTime = new Date();
-		this.gameLoop();
-	}
-}
-
-Spook.prototype.pause = function () {
-	if (typeof this._requestId === 'undefined' && !this.running) {
-		this.play();
-	} else {
-		this.stop();
-	}
-}
-
-Spook.prototype.FPSCounterUpdate = function(){
-    var currentTime = +(new Date()),
-        diffTime = ~~((currentTime - this._lastTickTime));
-
-    if (diffTime >= 1000) {
-        this._fps = this._frameCounter;
-        this._frameCounter = 0;
-        this._lastTickTime = currentTime;
-    }
-
-    this._frameCounter++;
-}
-
-/**
- * Asset Manager
- */
-Spook.prototype.load = function(name, src) {
-	var asset = {
-			name: name,
-			src: src
-		};
-
-    this.downloadQueue.push(asset);
-    return this;
-}
-
-Spook.prototype.loading = function(downloadCallback) {
-	if (this.downloadQueue.length === 0) {
-    	downloadCallback(true, 100);
-        this.start();
+			this.preCycles();
+			this._FPSRender();
+			this._requestId = window.requestAnimationFrame( function() { that.gameLoop(); } );
+		}
 	}
 
-  for (var i = 0; i < this.downloadQueue.length; i++) {
-    var path = this.downloadQueue[i].src;
-    var name = this.downloadQueue[i].name;
-    var img = new Image();
-    var that = this;
-    img.addEventListener("load", function() {
-    	that.successCount += 1;
-        if (that.isDone()) {
-	        downloadCallback(true, that.progress());
-	    } else {
-	    	downloadCallback(false, that.progress());
+	this.render = function () {
+		this.context.fillStyle = "rgb(255,0,0)";
+		this.context.fillRect(this.i, this.i, 50, 50);
+
+		this.i++;
+	}
+
+	this.stop = function () {
+		if (this._requestId) {
+	       window.cancelAnimationFrame(this._requestId);
+	       this._requestId = undefined;
+	       this.running = false;
 	    }
-	    if(that.progress() === 100)
-	    	that.start();
-    }, false);
-    img.addEventListener("error", function() {
-    	console.log('Can\'t load asset');
-        that.errorCount += 1;
+	}
 
-	    if (that.isDone()) {
-	        downloadCallback(true, that.progress());
-	    } else {
-	    	downloadCallback(false, that.progress());
+	this.play = function () {
+		if (typeof this._requestId === 'undefined') {
+			this.running = true;
+			this._lastTickTime = new Date();
+			this.gameLoop();
+		}
+	}
+
+	this.pause = function () {
+		if (typeof this._requestId === 'undefined' && !this.running) {
+			this.play();
+		} else {
+			this.stop();
+		}
+	}
+
+	this.FPSCounterUpdate = function(){
+	    var currentTime = +(new Date()),
+	        diffTime = ~~((currentTime - this._lastTickTime));
+
+	    if (diffTime >= 1000) {
+	        this._fps = this._frameCounter;
+	        this._frameCounter = 0;
+	        this._lastTickTime = currentTime;
 	    }
 
-	    if(that.progress() === 100)
-	    	that.start();
-    }, false);
-    img.src = path;
-    img.name = name;
-    img.test = 'Just test';
-    this.cache[name] = img;
-  }
-}
-
-Spook.prototype.isDone = function() {
-	return (this.downloadQueue.length == this.successCount + this.errorCount);
-}
-
-Spook.prototype.getAsset = function(name) {
-	return this.cache[name];
-}
-
-Spook.prototype.progress = function() {
-	if (this.downloadQueue.length === 0) {
-		return 100;
+	    this._frameCounter++;
 	}
 
-	return (Math.round(((this.successCount + this.errorCount) / this.downloadQueue.length) * 100) / 100) * 100;
-}
+	/**
+	 * Asset Manager
+	 */
+	this.load = function(name, src) {
+		var asset = {
+				name: name,
+				src: src
+			};
 
-Spook.prototype.preload = function (fn) {
-	fn();
-}
-
-Spook.prototype.ready = function (fn) {
-	this.content = fn;
-	console.log('loading progress: ' + this.progress());
-}
-
-Spook.prototype.start = function () {
-	if (this.content !== null) {
-		this.content();
-		this._lastTickTime = new Date();
-		this.gameLoop();
-	}
-}
-
-Spook.prototype.preCycles = function () {  // shoud be private
-	// Create empty cycle step if not created by user
-	if (!this._willUpdateContent) { 
-		this.willUpdate(function () {});
+	    this.downloadQueue.push(asset);
+	    return this;
 	}
 
-	if (!this._updateContent) {
-		this.update(function () {});
+	this.loading = function(downloadCallback) {
+		if (this.downloadQueue.length === 0) {
+	    	downloadCallback(true, 100);
+	        this.start();
+		}
+
+	  for (var i = 0; i < this.downloadQueue.length; i++) {
+	    var path = this.downloadQueue[i].src;
+	    var name = this.downloadQueue[i].name;
+	    var img = new Image();
+	    var that = this;
+	    img.addEventListener("load", function() {
+	    	that.successCount += 1;
+	        if (that.isDone()) {
+		        downloadCallback(true, that.progress());
+		    } else {
+		    	downloadCallback(false, that.progress());
+		    }
+		    if(that.progress() === 100)
+		    	that.start();
+	    }, false);
+	    img.addEventListener("error", function() {
+	    	console.log('Can\'t load asset');
+	        that.errorCount += 1;
+
+		    if (that.isDone()) {
+		        downloadCallback(true, that.progress());
+		    } else {
+		    	downloadCallback(false, that.progress());
+		    }
+
+		    if(that.progress() === 100)
+		    	that.start();
+	    }, false);
+	    img.src = path;
+	    img.name = name;
+	    img.test = 'Just test';
+	    this.cache[name] = img;
+	  }
 	}
 
-	if (!this._didUpdateContent) {
-		this.didUpdate(function () {});
+	this.isDone = function() {
+		return (this.downloadQueue.length == this.successCount + this.errorCount);
 	}
 
-	if (!this._willDrawContent) {
-		this.willDraw(function () {});
+	this.getAsset = function(name) {
+		return this.cache[name];
 	}
 
-	if (!this._drawContent) {
-		this.draw(function () {});
+	this.progress = function() {
+		if (this.downloadQueue.length === 0) {
+			return 100;
+		}
+
+		return (Math.round(((this.successCount + this.errorCount) / this.downloadQueue.length) * 100) / 100) * 100;
 	}
 
-	if (!this._didDrawContent) {
-		this.didDraw(function () {});
+	this.preload = function (fn) {
+		fn();
 	}
 
-	this._addToQueue();
-	this.cycleQueue(true);
+	this.ready = function (fn) {
+		this.content = fn;
+		console.log('loading progress: ' + this.progress());
+	}
+
+	this.start = function () {
+		if (this.content !== null) {
+			this.content();
+			this._lastTickTime = new Date();
+			this.gameLoop();
+		}
+	}
+
+	this.preCycles = function () {  // shoud be private
+		// Create empty cycle step if not created by user
+		if (!this._willUpdateContent) { 
+			this.willUpdate(function () {});
+		}
+
+		if (!this._updateContent) {
+			this.update(function () {});
+		}
+
+		if (!this._didUpdateContent) {
+			this.didUpdate(function () {});
+		}
+
+		if (!this._willDrawContent) {
+			this.willDraw(function () {});
+		}
+
+		if (!this._drawContent) {
+			this.draw(function () {});
+		}
+
+		if (!this._didDrawContent) {
+			this.didDraw(function () {});
+		}
+
+		this._addToQueue();
+		this.cycleQueue(true);
+	}
+
+	/**
+	 * Game cycles
+	 */
+	this.cycleQueue = function (next) {
+	    if(this._cycles.length == 0) return;
+	    var fnc = this._cycles.pop();
+	    fnc();
+	    if(next) {
+	        this.cycleQueue(true);
+	    }
+	}
+
+	this.clear = function () {
+		this.context.fillStyle = "rgb(255,255,255)";
+		this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
+	}
+
+	this.willUpdate = function (fn) {
+		this._willUpdateContent = fn;
+	}
+
+	this.update = function (fn) {
+		this._updateContent = fn;
+	}
+
+	this.didUpdate = function (fn) {
+		this._didUpdateContent = fn;
+	}
+
+	this.willDraw = function (fn) {
+		this._willDrawContent = fn;
+	}
+
+	this.draw = function (fn) {
+		this._drawContent = fn;
+	}
+
+	this.didDraw = function (fn) {
+		this._didDrawContent = fn;
+	}
+
+	this._addToQueue = function () {
+		this._cycles.push(this._didDrawContent);
+		this._cycles.push(this._drawContent);
+		this._cycles.push(this._willDrawContent);
+		this._cycles.push(this._didUpdateContent);
+		this._cycles.push(this._updateContent);
+		this._cycles.push(this._willUpdateContent);
+	}
+
+	this._FPSRender = function () {
+		this.context.fillStyle = '#000';
+		this.context.font = 'bold 14px sans-serif';
+		this.context.textBaseline = 'bottom';
+		this.context.fillText('FPS: ' + this._fps + '!', 10, 24);
+	}
+
+	//this.Sprite = Spook.sprite;
+	Spook.module.add('Sprite');
+
+	// -----
 }
 
-/**
- * Game cycles
- */
-Spook.prototype.cycleQueue = function (next) {
-    if(this._cycles.length == 0) return;
-    var fnc = this._cycles.pop();
-    fnc();
-    if(next) {
-        this.cycleQueue(true);
-    }
-}
-
-Spook.prototype.clear = function () {
-	this.context.fillStyle = "rgb(255,255,255)";
-	this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
-}
-
-Spook.prototype.willUpdate = function (fn) {
-	this._willUpdateContent = fn;
-}
-
-Spook.prototype.update = function (fn) {
-	this._updateContent = fn;
-}
-
-Spook.prototype.didUpdate = function (fn) {
-	this._didUpdateContent = fn;
-}
-
-Spook.prototype.willDraw = function (fn) {
-	this._willDrawContent = fn;
-}
-
-Spook.prototype.draw = function (fn) {
-	this._drawContent = fn;
-}
-
-Spook.prototype.didDraw = function (fn) {
-	this._didDrawContent = fn;
-}
-
-Spook.prototype._addToQueue = function () {
-	this._cycles.push(this._didDrawContent);
-	this._cycles.push(this._drawContent);
-	this._cycles.push(this._willDrawContent);
-	this._cycles.push(this._didUpdateContent);
-	this._cycles.push(this._updateContent);
-	this._cycles.push(this._willUpdateContent);
-}
-
-Spook.prototype._FPSRender = function () {
-	this.context.fillStyle = '#000';
-	this.context.font = 'bold 14px sans-serif';
-	this.context.textBaseline = 'bottom';
-	this.context.fillText('FPS: ' + this._fps + '!', 10, 24);
-}
+//Spook.module.add('sprite');
 
 /**
  * Sprite Manager
  */
-Spook.prototype.sprite = function (obj) {
+Spook.Sprite = function (obj) {
 	this.width = obj.width;
 	this.height = obj.height;
 	this.name = obj.name;
 	this.image = obj.image;
-}
 
-Spook.prototype.sprite.prototype.animate = function () {
-	console.log('Animate!!!!!! ' + this.image.width + ', h: ' + this.image.height);
-}
+	this.animate = function () {
+		console.log('Animate!!!!!! ' + this.image.width + ', h: ' + this.image.height);
+	}
+};

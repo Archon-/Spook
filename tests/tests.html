@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Tests - test</title>
+</head>
+<body>
+	<button id="start" onclick="javascript:game.play();">Start</button>
+	<button id="stop" onclick="javascript:game.stop();">Stop</button>
+	<button id="pause" onclick="javascript:game.pause();">Pause</button>
+	<script src="../src/spook.js"></script>
+	<script>
+		/**
+		 *	Spook - Tests
+		 */
+
+		 var SPOOK = SPOOK || {};
+
+		// SPOOK.namespace = function (ns_string) {
+		// 	var parts = ns_string.split('.'),
+		// 		parent = SPOOK,
+		// 		i,
+		// 		pl;
+
+		// 	console.log('namespace');
+			
+		// 	if (parts[0] === "SPOOK") {
+		// 		parts = parts.slice(1);
+		// 	}
+		// 	pl = parts.length;
+		// 	for (i = 0; i < pl; i += 1) {
+		// 		//create a property if it doesnt exist  
+		// 		if (typeof parent[parts[i]] === 'undefined') {  
+		//             parent[parts[i]] = {};  
+		//         }  
+		//         parent = parent[parts[i]];  
+		// 	}
+		// 	return parent; 
+		// };
+
+		SPOOK.Game = function (arguments) {
+			this.name = arguments.name || "noname";
+			this.paramA = arguments.paramA || "";
+			this.paramB = arguments.paramB;
+
+			this.sprite = SPOOK.Sprite;
+		}
+
+		SPOOK.module = {
+			add: function (module) {
+				SPOOK.Game.prototype[module] = SPOOK[module];
+			}
+		}
+
+		SPOOK.Sprite = function () {
+			this.name = 'Sprite';
+		}
+
+		SPOOK.moduleB = function () {
+			this.name = 'module B';
+			this.doSth = function () {
+				console.log('I\'m doing something!');
+			}
+		}
+
+		// SPOOK.ModuleA = function () {
+		// 	thin.name = 'moduleA';
+		// }
+
+		// Spook.prototype.sprite.prototype.move = function () {
+		// 	console.log('move');
+		// }
+	</script>
+</body>
+</html>
