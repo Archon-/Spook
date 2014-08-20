@@ -10,7 +10,11 @@
 	<button id="pause" onclick="javascript:game.pause();">Pause</button>
 	<script src="../src/spook.js"></script>
 	<script>
-		var game = new Spook('game', 800, 480);
+		var game = new Spook.Game({
+				id: "game",
+				width: 480,
+				height: 600
+			});
 		var img2;
 		var i = 0;
 
@@ -42,7 +46,7 @@
 			console.log('Gaaaame!');
 
 			console.log('creating sprite');
-			var spr = new game.sprite({
+			var spr = new game.Sprite({
 				name: 'Spritic',
 				width: 48,
 				height: 92,
